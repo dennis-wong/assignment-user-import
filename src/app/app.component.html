@@ -1,49 +1,23 @@
-<h1>User Import</h1>
+<app-stepflow [notifier]="stepNotifier">
+  <app-stepflow-step [first]="true" [tekstVolgende]="'Je kan het!'">
+    <p>Vraag 1</p>
+    <p question>Een random vraag</p>
+  </app-stepflow-step>
 
-<table mat-table [dataSource]="showData" class="mat-elevation-z8">
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef>Naam</th>
-    <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-  </ng-container>
+  <app-stepflow-step [tekstVorige]="'Toch maar niet'" (sendValue)="checkInput($event)">
+    <p>Vraag 2</p>
+    <mat-form-field class="example-full-width">
+      <mat-label>Favorite food</mat-label>
+      <input checkValue matInput placeholder="Ex. Pizza" value="">
+    </mat-form-field>
+  </app-stepflow-step>
 
-  <ng-container matColumnDef="email">
-    <th mat-header-cell *matHeaderCellDef>E-mail</th>
-    <td mat-cell *matCellDef="let element">{{ element.email }}</td>
-  </ng-container>
+  <app-stepflow-step [last]="true">
+    <p>Vraag 3</p>
+    <p question>Is dit het einde?</p>
+  </app-stepflow-step>
+</app-stepflow>
 
-  <ng-container matColumnDef="role">
-    <th mat-header-cell *matHeaderCellDef>Rol</th>
-    <td mat-cell *matCellDef="let element">{{ element.role }}</td>
-  </ng-container>
-
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>Status</th>
-    <td mat-cell *matCellDef="let element">
-      <ng-container *ngIf="element.status === 'Goed'">
-        {{ element.status }}
-      </ng-container>
-      <ng-container *ngIf="element.status === 'Fout'"
-        ><button
-          color="warn"
-          mat-raised-button
-          (click)="corrigeerData(element)"
-        >
-          Corrigeer
-        </button></ng-container
-      >
-    </td></ng-container
-  >
-
-  <tr
-    mat-header-row
-    *matHeaderRowDef="['name', 'email', 'role', 'status']"
-  ></tr>
-  <tr
-    mat-row
-    *matRowDef="let row; columns: ['name', 'email', 'role', 'status']"
-  ></tr>
-</table>
-
-<button mat-raised-button color="primary" (click)="clickSubmit()">
-  Indienen
+<button mat-raised-button color="primary" (click)="gaVerder()">
+  Knop om vanuit code naar volgende te gaan
 </button>

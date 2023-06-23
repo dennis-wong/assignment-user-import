@@ -1,63 +1,58 @@
-# Opdracht: User Import
+# Gebruik van de Stepflow component
 
-In mijn applicatie heb ik geregeld te maken met grote groepen nieuwe gebruikers die moeten worden toegevoegd. Afhankelijk van een aantal factoren moeten er nog een aantal handelingen gebeuren. Voor deze opdracht is de daadwerkelijke situatie versimpeld voorgesteld.
+Plaats het volgende in de html
 
-- De beschikbare informatie bestaat voor elke gebruiker uit een naam, e-mailadres en een rolomschrijving (namelijk STUDENT of TEACHER)
-- Door middel van een API-call wordt een User aangemaakt (met informatie naam en e-mailadres)
-- Door middel van een API-call wordt een Role aangemaakt (met userId en roleType STUDENT of TEACHER)
-- Als de user een STUDENT is, wordt bovendien door middel van een API-call een Portfolio aangemaakt (met userId)
+```
+<app-stepflow>
+  <app-stepflow-step>
+    ...
+  </app-stepflow-step>
+</app-stepflow>
+```
 
-Het handmatig doorlopen van al deze handelingen voor nieuwe gebruikers (x2500) is niet wenselijk. Daarom hebben we alle informatie verzameld in een excelbestand dat kan worden geupload en automatisch verwerkt. Tijdens het verwerken kunnen echter allerlei problemen ontstaan, bijvoorbeeld:
+Tussen de app-stepflow-step component plaats je de vraag welke je getoond wilt hebben
 
-- Eén van de ingevoerde e-mailadressen bestaat al in onze database.
-- Eén van de ingevoerde rijen heeft geen naam.
-- Eén van de ingevoerde rollen bestaat niet (TEACHR).
+## Titel voor de vraag
+Titel voor de vraag kan met een selector `question` aangeduidt worden:
+```
+<p question>Een random vraag</p>
+```
+## Volgorde van vragen aangeven
+Om aan te geven welke vraag het als eerst komt, moet de attribuut `[first]="true"` erbij toegevoegd worden aan de app-stepflow-step component
+```
+<app-stepflow-step [first]="true">
+```
+hetzelfde geld voor het laatste vraag
+```
+<app-stepflow-step [last]="true">
+```
+## Teksten van knoppen aanpassen
+Wil je de teskt van een knop aanpassen, dan kan dat met `[tekstVolgende]` of `[tekstVorige]` attribute
+```
+<app-stepflow-step [tekstVolgende]="'Je kan het!'">
 
-We willen dat voor de eindgebruiker duidelijk is waar een fout is opgetreden zodat deze de fout kan herstellen. Wanneer er een fout optreedt willen we niet het hele proces platleggen, want de goede rijen kunnen gewoon worden verwerkt.  Echter, nadat de informatie is gecorrigeerd en het formulier opnieuw wordt verwerkt, moeten de reeds verwerkte rijen of stappen daarvan uiteraard niet opnieuw worden uitgevoerd.
+<app-stepflow-step [tekstVorige]="'Toch maar niet'">
+```
+## Knop naar volgende vraag vanuit code
+Het is ook mogelijk om naar de volgende vraag te navigeren vanuit de code. Hiervoor zijn de volgende aanpassingen nodig:
 
-## Opdracht
+- Plaats deze `[notifier]="stepNotifier"` in de hoofd stepflow (dus niet in de stepflow-step)
+```
+<app-stepflow [notifier]="stepNotifier">
+```
+- Nu kan je in de code met behulp van `stepNotifier: Subject<string> = new Subject<string>();` in je Class refereren naar de Stepflow component om daar een commando te geven
+- Het commando die je moet geven is `this.stepNotifier.next('volgende');`. Deze zal je moeten gebruiken wanneer je vanuit de code naar het volgende stap wil gaan.
 
-Breid de repository uit onder de volgende voorwaarden:
+## Input controleren
+Als je een input wilt controleren in de code na het klikken op Volgende, dan kan dat met behulp van het volgende:
 
-- Op basis van de beschikbare informatie wil ik de juiste handelingen uitvoeren (zoals hierboven uitgewerkt).
-- Zodra in één van de handelingen een fout optreedt, wil ik met die rij niet verder en wil ik in de UI in een volgende stap zien welke rijen fout zijn en waarom. Je mag de errortekst van de API direct overnemen.
-- Wanneer de fouten hersteld zijn en de nieuwe data wordt opgestuurd, moeten de reeds gelukte handelingen niet nog een keer worden uitgevoerd (ik wil natuurlijk geen dubbele users aanmaken).
-- De teruggekregen informatie van geslaagde calls hoef je verder niet te verwerken of op te slaan.
-- De UI kan wat gebruikersvriendelijker.
-- Je mag de MockAPI en de rawData niet aanpassen.
-- Je mag de gedefinieerde types in MockAPI natuurlijk wel gebruiken.
-- Je mag al het andere wel aanpassen, inclusief het introduceren van nieuwe Types.
-
-Let verder op de volgende dingen van Angular:
-
-- [Single Responsibility](https://angular.io/guide/styleguide#single-responsibility)
-- [Component Interaction](https://angular.io/guide/component-interaction)
-- [Feature Modules](https://angular.io/guide/feature-modules)
-
-# AssignmentUserImport
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.4.
-
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- Plaats het directive `checkValue` op het input element: ```<input checkValue value=""> ```
+- Dit maakt het mogelijk om de input waarde te achterhalen. Nu moet je nog `(sendValue)="checkInput($event)"` op de app-stepflow-step van waar het input element zit. Zoals hier:
+```
+  <app-stepflow-step (sendValue)="checkInput($event)">
+    ....
+    <input checkValue value="">
+  </app-stepflow-step>
+```
+- hier is checkInput als voorbeeld functie gebruikt. Je kan zelf een eigen functie maken en daarvan het waarde aflezen in de code. En aan de hand daarvan zelf beslissen of je naar het volgende vraag wil leiden of niet.
+- BELANGRIJK: zodra het directive op een input staat, zal er check op de Volgende knop uitgevoerd worden waarbij als er geen waarde is er ook niks zal gebeuren. Het is dus van belang dat je zelf vanuit de code met behulp van het output `(sendValue)` de waarde uitleest en de navigatie verder op gang zet.

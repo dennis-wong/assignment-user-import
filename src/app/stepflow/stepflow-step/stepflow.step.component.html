@@ -1,0 +1,10 @@
+<mat-card [class]="active?'':'disabledcard'">
+  <mat-card-header>
+    <mat-card-title><ng-content></ng-content></mat-card-title>
+    <mat-card-subtitle><ng-content select="[question]"></ng-content></mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-actions>
+    <button mat-button *ngIf="!first" (click)="send('vorige')">{{tekstVorige || 'Vorige'}}</button>
+    <button mat-button *ngIf="!last" (click)="send('volgende')">{{tekstVolgende || 'Volgende'}}</button>
+  </mat-card-actions>
+</mat-card>
